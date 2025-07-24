@@ -9,6 +9,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        html {
+            scroll-behavior: smooth;
+        }
         body {
             font-family: 'Inter', sans-serif;
             background-color: #f7f8fa;
@@ -55,9 +58,47 @@
         #detailsModal.hidden {
             display: none;
         }
+        #index-bar {
+            width: 60px;
+            max-height: 60px;
+            transition: width 0.3s ease-in-out, max-height 0.3s ease-in-out;
+            overflow: hidden;
+            z-index: 40; /* Ensure it's above content */
+        }
+        #index-bar:hover {
+            width: 250px;
+            max-height: 80vh;
+        }
+        #index-bar-content {
+            overflow-y: auto;
+            height: 100%;
+        }
+        /* Custom scrollbar for index */
+        #index-bar-content::-webkit-scrollbar {
+            width: 4px;
+        }
+        #index-bar-content::-webkit-scrollbar-thumb {
+            background-color: #a5b4fc;
+            border-radius: 20px;
+        }
+        #back-to-top {
+            transition: opacity 0.3s, transform 0.3s;
+        }
     </style>
 </head>
 <body class="text-slate-800">
+
+    <!-- Floating Index Bar -->
+    <nav id="index-bar" class="fixed top-1/2 -translate-y-1/2 left-4 hidden xl:flex flex-col bg-white/80 backdrop-blur-sm p-2 rounded-lg border shadow-lg">
+        <div id="index-bar-content" class="space-y-1">
+            <!-- Index links will be injected here -->
+        </div>
+    </nav>
+    
+    <!-- Back to Top Button -->
+    <button id="back-to-top" class="fixed bottom-8 right-8 bg-indigo-600 text-white p-3 rounded-full shadow-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 opacity-0 transform translate-y-4">
+      <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" /></svg>
+    </button>
 
     <div class="container mx-auto p-4 md:p-8 max-w-7xl">
         <header class="mb-12">
@@ -107,9 +148,12 @@
                 <button class="timeline-tab flex-grow md:flex-grow-0 text-center py-2 px-4 rounded-full text-sm font-medium focus:outline-none transition-all" onclick="filterTimeline('2027')">2027</button>
                 <button class="timeline-tab flex-grow md:flex-grow-0 text-center py-2 px-4 rounded-full text-sm font-medium focus:outline-none transition-all" onclick="filterTimeline('2028')">2028</button>
                 <button class="timeline-tab flex-grow md:flex-grow-0 text-center py-2 px-4 rounded-full text-sm font-medium focus:outline-none transition-all" onclick="filterTimeline('2029')">2029</button>
-                <button class="timeline-tab flex-grow md:flex-grow-0 text-center py-2 px-4 rounded-full text-sm font-medium focus:outline-none transition-all" onclick="filterTimeline('2030')">2030</button>
+                <button class="timeline-tab flex-grow md:flex-grow-0 text-center py-2 px-4 rounded-full text-sm font-medium focus:outline-none transition-all" onclick="filterTimeline('2030')">2030 & Permanent</button>
             </div>
         </div>
+        
+        <!-- Results Count -->
+        <div id="results-count" class="text-center text-slate-600 mb-6 font-semibold"></div>
 
         <!-- Main Content Area -->
         <main id="provision-container" class="space-y-8">
@@ -173,6 +217,7 @@
                 category: "individual",
                 startYear: 2025,
                 endYear: 2099, // Permanent
+                indexKeyword: "529 Plans",
                 keywords: "529 plan college savings k-12 tuition sec 70413 70414 apprenticeship credential",
                 summary: "This provision significantly expands the utility of 529 savings plans, making them a more flexible tool for a wider range of educational needs. It broadens the definition of qualified K-12 expenses beyond just tuition to include curriculum, books, online materials, tutoring, and educational therapies for students with disabilities. It also doubles the annual K-12 distribution limit to $20,000, allowing families to cover more costs tax-free. Crucially, it now allows 529 funds to pay for non-traditional postsecondary education, such as certification exams, apprenticeships, and professional licensing programs, supporting workforce development.",
                 before: "<ul><li class='ml-4 list-disc'>K-12 expenses were limited to $10,000 annually for tuition only.</li><li class='ml-4 list-disc'>Postsecondary use was generally restricted to traditional college costs at accredited institutions.</li></ul>",
@@ -188,6 +233,7 @@
                 category: "individual",
                 startYear: 2026,
                 endYear: 2099, // Permanent
+                indexKeyword: "Charity (Non-Itemizer)",
                 keywords: "charitable contribution deduction non-itemizer standard deduction sec 70424",
                 summary: "This provision permanently reinstates and enhances the 'above-the-line' deduction for charitable contributions, specifically for the majority of taxpayers who do not itemize and instead take the standard deduction. This encourages charitable giving by allowing these taxpayers to receive a tax benefit for their donations directly, reducing their Adjusted Gross Income (AGI). The deductible amount is significantly increased from its prior, temporary level.",
                 before: "<ul><li class='ml-4 list-disc'>This deduction expired after 2021.</li><li class='ml-4 list-disc'>Non-itemizers received no tax benefit for charitable gifts.</li></ul>",
@@ -203,6 +249,7 @@
                 category: "individual",
                 startYear: 2026,
                 endYear: 2099, // Permanent
+                indexKeyword: "Charity (Itemizer)",
                 keywords: "charitable contribution deduction itemizer floor sec 70425",
                 summary: "A new limitation is introduced for taxpayers who itemize their deductions. This change requires that aggregate charitable contributions for the year must exceed a certain percentage of the taxpayer's income before any deduction can be taken. This 'floor' is designed to target the deduction to those with more significant philanthropic activity relative to their income.",
                 before: "<ul><li class='ml-4 list-disc'>Itemizers could deduct the full amount of their charitable contributions, subject only to high-level percentage limitations (e.g., 60% of AGI for cash).</li></ul>",
@@ -218,6 +265,7 @@
                 category: "individual",
                 startYear: 2027,
                 endYear: 2099, // Permanent
+                indexKeyword: "SGO Credits",
                 keywords: "scholarship granting organization sgo school choice sec 70411",
                 summary: "Creates a new federal tax credit to incentivize individual donations to qualified Scholarship Granting Organizations (SGOs) in states that voluntarily participate in the program. SGOs use these funds to provide scholarships for eligible K-12 students, often for private school tuition or other educational expenses. This credit is designed to complement existing state-level school choice programs.",
                 before: "<ul><li class='ml-4 list-disc'>No federal tax credit existed for these contributions.</li><li class='ml-4 list-disc'>Donations were only potentially deductible as a charitable contribution for itemizers.</li></ul>",
@@ -233,6 +281,7 @@
                 category: "individual",
                 startYear: 2026,
                 endYear: 2099, // Permanent
+                indexKeyword: "AOTC/LLC",
                 keywords: "american opportunity tax credit lifetime learning credit aotc llc education sec 70606",
                 summary: "Adds a stricter identification requirement to claim the American Opportunity Tax Credit (AOTC) and the Lifetime Learning Credit (LLC). This integrity measure is designed to ensure that only eligible individuals who are properly documented within the U.S. tax system can claim these valuable education credits. The taxpayer claiming the credit (typically the parent) must now provide their own Social Security Number (SSN) on the tax return.",
                 before: "<ul><li class='ml-4 list-disc'>The law required the name and taxpayer ID number (TIN) of the student for whom expenses were paid.</li><li class='ml-4 list-disc'>A parent with an ITIN could claim the credit for a child with an SSN.</li></ul>",
@@ -248,6 +297,7 @@
                 category: "individual",
                 startYear: 2025,
                 endYear: 2099, // Permanent
+                indexKeyword: "Adoption Credit",
                 keywords: "adoption credit refundable sec 70402",
                 summary: "This provision enhances the nonrefundable adoption credit by making a portion of it refundable. Up to $5,000 of the credit can now be received as a cash refund, even if the taxpayer has no federal income tax liability. This change provides a more significant and immediate financial benefit to lower- and middle-income families who undertake an adoption but may not have enough tax liability to utilize the full credit otherwise.",
                 before: "<ul><li class='ml-4 list-disc'>The adoption credit was entirely nonrefundable.</li><li class='ml-4 list-disc'>It could only reduce tax liability to zero, and any excess was carried forward for up to 5 years.</li></ul>",
@@ -263,6 +313,7 @@
                 category: "individual",
                 startYear: 2026,
                 endYear: 2099, // Permanent
+                indexKeyword: "Dependent Care",
                 keywords: "dependent care assistance program dcap child tax credit cdctc sec 70404 70405",
                 summary: "Enhances two key dependent care benefits to provide greater tax relief for working families. The maximum annual contribution to an employer-sponsored Dependent Care Assistance Program (DCAP) is increased from $5,000 to $7,500. The Child and Dependent Care Tax Credit (CDCTC) is also made more generous for lower- and middle-income families by restructuring its phase-down, allowing them to claim a higher percentage of their expenses.",
                 before: "<ul><li class='ml-4 list-disc'>DCAP contribution limit was $5,000.</li><li class='ml-4 list-disc'>The CDCTC provided a smaller benefit for most families under its permanent structure.</li></ul>",
@@ -278,6 +329,7 @@
                 category: "individual",
                 startYear: 2026,
                 endYear: 2099, // Permanent
+                indexKeyword: "Wagering Losses",
                 keywords: "wagering gambling losses deduction sec 70114",
                 summary: "Modifies the deduction for gambling losses for taxpayers who itemize. Previously, losses were deductible up to the amount of winnings. The new rule states that the amount allowed as a deduction is equal to 90% of the losses, and this amount is still limited by the total winnings for the year. This effectively creates a 10% haircut on deductible losses.",
                 before: "<ul><li class='ml-4 list-disc'>A taxpayer could deduct 100% of their gambling losses, but only up to the amount of their gambling winnings.</li></ul>",
@@ -293,6 +345,7 @@
                 category: "individual",
                 startYear: 2025,
                 endYear: 2099, // Permanent
+                indexKeyword: "HSA Rules",
                 keywords: "health savings account hsa telehealth bronze catastrophic direct primary care sec 71306 71307 71308",
                 summary: "Makes several favorable changes to HSAs to expand eligibility and flexibility. It permanently allows high-deductible health plans (HDHPs) to cover telehealth pre-deductible. It newly allows individuals covered by lower-cost 'Bronze' and 'Catastrophic' health plans to contribute to an HSA. It also clarifies that paying a fixed fee for a 'direct primary care' arrangement does not disqualify an individual from contributing to an HSA.",
                 before: "<ul><li class='ml-4 list-disc'>The telehealth safe harbor was temporary.</li><li class='ml-4 list-disc'>Bronze/Catastrophic plans were not HSA-eligible.</li><li class='ml-4 list-disc'>Direct primary care arrangements had an uncertain status regarding HSA eligibility.</li></ul>",
@@ -308,6 +361,7 @@
                 category: "individual",
                 startYear: 2025,
                 endYear: 2027, // Phased-in changes
+                indexKeyword: "PTC Rules",
                 keywords: "premium tax credit ptc 36b health insurance obamacare aca eligible alien medicaid recapture sec 71301 71302 71303 71304 71305",
                 summary: "The bill significantly tightens eligibility for the PTC (Sec. 36B), limiting it to U.S. citizens and specific 'eligible aliens' (e.g., permanent residents). It also eliminates the cap on recapturing excess advance payments.",
                 before: "<ul><li class='ml-4 list-disc'>PTC was available to a broader group of lawfully present aliens.</li><li class='ml-4 list-disc'>Repayment of excess subsidies was capped for most taxpayers.</li></ul>",
@@ -323,6 +377,7 @@
                 category: "individual",
                 startYear: 2025,
                 endYear: 2028,
+                indexKeyword: "Tip Deduction",
                 keywords: "tips tip income deduction sec 70201 server restaurant",
                 summary: "Creates a new, temporary deduction for up to $25,000 in qualified tip income. The deduction phases out for taxpayers with modified AGI above $150,000 (single) or $300,000 (joint).",
                 before: "<ul><li class='ml-4 list-disc'>All tip income was fully taxable.</li></ul>",
@@ -338,6 +393,7 @@
                 category: "individual",
                 startYear: 2025,
                 endYear: 2028,
+                indexKeyword: "Overtime Deduction",
                 keywords: "overtime pay deduction sec 70202 hourly worker",
                 summary: "Introduces a new, temporary deduction for up to $12,500 (single) or $25,000 (joint) in qualified overtime pay, subject to an income phase-out.",
                 before: "<ul><li class='ml-4 list-disc'>Overtime pay was fully taxable.</li></ul>",
@@ -353,6 +409,7 @@
                 category: "individual",
                 startYear: 2025,
                 endYear: 2028,
+                indexKeyword: "Car Loan Interest",
                 keywords: "car loan auto vehicle interest deduction sec 70203",
                 summary: "Creates a new, temporary deduction for interest paid on a new passenger vehicle loan, limited to $10,000 per year. The vehicle must be assembled in the U.S. and the deduction phases out at higher incomes.",
                 before: "<ul><li class='ml-4 list-disc'>Interest on personal car loans was not deductible.</li></ul>",
@@ -368,6 +425,7 @@
                 category: "individual",
                 startYear: 2025,
                 endYear: 2099, // Permanent
+                indexKeyword: "CTC",
                 keywords: "child tax credit ctc sec 70104 kids family",
                 summary: "Permanently increases the Child Tax Credit (CTC) to $2,200 per child and indexes it for inflation. It also tightens the Social Security Number (SSN) requirement for eligibility.",
                 before: "<ul><li class='ml-4 list-disc'>$2,000 per child, set to revert to $1,000 after 2025.</li></ul>",
@@ -383,6 +441,7 @@
                 category: "individual",
                 startYear: 2025,
                 endYear: 2029,
+                indexKeyword: "SALT Cap (Temp)",
                 keywords: "salt state local tax deduction sec 70120 property tax income tax",
                 summary: "The cap on the SALT deduction is temporarily increased to $40,000 for 2025 (and indexed for inflation through 2029), with a phase-down for taxpayers with AGI over $500,000.",
                 before: "<ul><li class='ml-4 list-disc'>A flat $10,000 cap per household.</li></ul>",
@@ -398,6 +457,7 @@
                 category: "individual",
                 startYear: 2030,
                 endYear: 2099, // Permanent
+                indexKeyword: "SALT Cap (Perm)",
                 keywords: "salt state local tax deduction sec 70120 property tax income tax",
                 summary: "After the temporary increase expires, the cap on the SALT deduction reverts to $10,000 per household, and this lower cap is made permanent.",
                 before: "<ul><li class='ml-4 list-disc'>A temporary higher cap of $40,000+ was in effect from 2025-2029.</li></ul>",
@@ -413,6 +473,7 @@
                 category: "individual",
                 startYear: 2026,
                 endYear: 2099, // Permanent
+                indexKeyword: "Trump Accounts",
                 keywords: "trump accounts savings children sec 70204 ira",
                 summary: "Establishes 'Trump Accounts,' a new type of tax-advantaged savings account for individuals under 18. Includes a pilot program for a $1,000 government contribution for eligible children born 2025-2028.",
                 before: "<ul><li class='ml-4 list-disc'>No such account existed.</li></ul>",
@@ -426,14 +487,15 @@
                 id: "provision-18",
                 title: "Termination of Clean Vehicle & Residential Energy Credits",
                 category: "individual",
-                startYear: 2025,
+                startYear: 2024,
                 endYear: 2025,
+                indexKeyword: "Energy Credit End",
                 keywords: "electric vehicle ev solar panels energy credit termination sec 70501 70502 70503 70505 70506",
                 summary: "The bill terminates several popular credits for individuals, including those for new/used clean vehicles and for residential energy property like solar panels.",
                 before: "<ul><li class='ml-4 list-disc'>Credits were available through 2032 or 2034.</li></ul>",
                 after: "<ul><li class='ml-4 list-disc'>Credits are terminated much earlier, in 2025 and 2026.</li></ul>",
                 details: "The specific credits being terminated are the Previously-Owned Clean Vehicle Credit (Sec. 25E), the New Clean Vehicle Credit (Sec. 30D), the Qualified Commercial Clean Vehicles Credit (Sec. 45W), the Energy Efficient Home Improvement Credit (Sec. 25C), and the Residential Clean Energy Credit (Sec. 25D).",
-                timelineEffective: "",
+                timelineEffective: "<strong>Valid Through 2024 & 2025:</strong> These credits remain available under their existing rules for all of 2024 and most of 2025.",
                 timelineTermination: "<strong>Terminates:</strong> Clean Vehicle Credits end for vehicles acquired after Sep 30, 2025. Residential Energy Credits end for expenditures after Dec 31, 2025.",
                 example: "A homeowner signs a contract to install a $30,000 solar panel system on their roof in October 2025, with installation completed in January 2026. Because the expenditure was made after Dec 31, 2025, they are no longer eligible for the 30% ($9,000) tax credit."
             },
@@ -443,6 +505,7 @@
                 category: "individual",
                 startYear: 2026,
                 endYear: 2099, // Permanent
+                indexKeyword: "Student Loan Discharge",
                 keywords: "student loan debt discharge forgiveness disability death sec 70119",
                 summary: "Makes permanent the exclusion from gross income for student loan debt that is discharged due to the death or total and permanent disability of the student.",
                 before: "<ul><li class='ml-4 list-disc'>This exclusion was temporary and set to expire.</li></ul>",
@@ -458,6 +521,7 @@
                 category: "individual",
                 startYear: 2026,
                 endYear: 2099, // Permanent
+                indexKeyword: "Casualty Loss",
                 keywords: "casualty loss deduction disaster state federal sec 70109",
                 summary: "Makes permanent the rule limiting personal casualty loss deductions to declared disasters, and expands it to include 'State declared disasters'.",
                 before: "<ul><li class='ml-4 list-disc'>Deduction limited to federally declared disasters, and this rule was temporary.</li></ul>",
@@ -473,6 +537,7 @@
                 category: "individual",
                 startYear: 2026,
                 endYear: 2099, // Permanent
+                indexKeyword: "Educator Expense",
                 keywords: "educator expense deduction teacher coach sec 70110",
                 summary: "Removes the $300 cap on the educator expense deduction and expands eligibility to include coaches and sports administrators, as well as a broader range of instructional expenses.",
                 before: "<ul><li class='ml-4 list-disc'>Deduction capped at $300 for a narrow group of educators.</li></ul>",
@@ -489,6 +554,7 @@
                 category: "business",
                 startYear: 2025,
                 endYear: 2099, // Permanent
+                indexKeyword: "Bonus Depreciation",
                 keywords: "bonus depreciation full expensing sec 70301 168k business investment equipment",
                 summary: "Permanently sets bonus depreciation at 100% for qualified business property, repealing the scheduled phase-down. This allows businesses to immediately write off the full cost of new and used equipment with a recovery period of 20 years or less.",
                 before: "<ul><li class='ml-4 list-disc'>Bonus depreciation was phasing down (60% in 2024, 40% in 2025, etc.).</li></ul>",
@@ -502,14 +568,15 @@
                 id: "provision-23",
                 title: "Domestic R&D Expensing (Sec. 70302)",
                 category: "business",
-                startYear: 2025,
+                startYear: 2024,
                 endYear: 2099, // Permanent
+                indexKeyword: "R&D Expensing",
                 keywords: "r&d research development expensing amortization sec 70302 174a",
                 summary: "Reverses a 2017 law change, allowing businesses to once again immediately deduct all domestic research and development (R&D) costs. This avoids the requirement to capitalize and amortize these costs over five years. Foreign R&D costs must still be capitalized and amortized over 15 years.",
                 before: "<ul><li class='ml-4 list-disc'>All R&D costs incurred after 2021 had to be amortized over 5 years (domestic) or 15 years (foreign).</li></ul>",
                 after: "<ul><li class='ml-4 list-disc'>Immediate expensing is restored for all domestic R&D costs, improving cash flow for innovative companies.</li></ul>",
-                details: "This change creates a new code section, 174A, specifically for domestic R&D, allowing for immediate deduction. The old section 174 is modified to apply only to foreign R&D, which retains the 15-year amortization schedule. This creates a strong tax incentive to locate R&D activities within the United States.",
-                timelineEffective: "<strong>Effective:</strong> Permanent change for taxable years beginning after Dec 31, 2024.",
+                details: "This change creates a new code section, 174A, specifically for domestic R&D, allowing for immediate deduction. The old section 174 is modified to apply only to foreign R&D, which retains the 15-year amortization schedule. This creates a strong tax incentive to locate R&D activities within the United States. A special retroactive rule allows companies to elect to deduct all their unamortized R&D costs from 2022-2024 in their 2025 tax year.",
+                timelineEffective: "<strong>Effective:</strong> Permanent change for taxable years beginning after Dec 31, 2024. A retroactive election is available for 2022-2024 costs.",
                 timelineTermination: "",
                 example: "A U.S. tech company incurs $10 million in domestic R&D costs in 2025. Instead of deducting only $1 million (first-year amortization), it can now deduct the full $10 million, reducing its 2025 taxable income by an additional $9 million."
             },
@@ -519,6 +586,7 @@
                 category: "business",
                 startYear: 2025,
                 endYear: 2099, // Permanent
+                indexKeyword: "Section 179",
                 keywords: "section 179 expensing small business sec 70306",
                 summary: "Increases the maximum amount a business can immediately expense for qualifying property under Sec. 179 from ~$1M to $2.5M. It also raises the investment phase-out threshold (the point at which the deduction starts to decrease) from ~$2.5M to $4M. These new, higher limits are indexed for inflation.",
                 before: "<ul><li class='ml-4 list-disc'>~$1M max deduction, phasing out above ~$2.5M in total equipment purchases.</li></ul>",
@@ -534,6 +602,7 @@
                 category: "business",
                 startYear: 2025,
                 endYear: 2030,
+                indexKeyword: "Production Property",
                 keywords: "special depreciation allowance manufacturing factory building sec 70307",
                 summary: "Creates a new, powerful tax incentive allowing a 100% first-year depreciation deduction for 'qualified production property.' This is defined as newly constructed nonresidential real property (buildings and structures) used in the U.S. for manufacturing, production, or refining of tangible goods.",
                 before: "<ul><li class='ml-4 list-disc'>Commercial buildings were generally depreciated over 39 years and were not eligible for bonus depreciation.</li></ul>",
@@ -549,6 +618,7 @@
                 category: "business",
                 startYear: 2026,
                 endYear: 2099, // Permanent
+                indexKeyword: "Paid Leave Credit",
                 keywords: "paid family medical leave credit pfml sec 70304 employer",
                 summary: "Makes the credit permanent and allows employers to base it on premiums paid for a qualifying insurance policy. Expands 'qualifying employee' definition to those employed for 6+ months.",
                 before: "<ul><li class='ml-4 list-disc'>A temporary credit based on wages paid to employees on leave who were employed for 1+ year.</li></ul>",
@@ -564,6 +634,7 @@
                 category: "business",
                 startYear: 2026,
                 endYear: 2099, // Permanent
+                indexKeyword: "Childcare Credit",
                 keywords: "employer childcare credit sec 70401 daycare",
                 summary: "Enhances the credit by increasing the rate to 40% (50% for small businesses) and raising the annual cap to $500,000 ($600,000 for small businesses), indexed for inflation.",
                 before: "<ul><li class='ml-4 list-disc'>25% credit, capped at $150,000 annually.</li></ul>",
@@ -579,6 +650,7 @@
                 category: "business",
                 startYear: 2026,
                 endYear: 2099, // Permanent
+                indexKeyword: "Student Loans (Employer)",
                 keywords: "employer student loan repayment assistance sec 70412 127",
                 summary: "Makes permanent the provision allowing employers to provide up to $5,250 per year in tax-free student loan repayment assistance to employees.",
                 before: "<ul><li class='ml-4 list-disc'>This was a temporary provision set to expire after 2025.</li></ul>",
@@ -594,6 +666,7 @@
                 category: "business",
                 startYear: 2025,
                 endYear: 2099, // Permanent
+                indexKeyword: "Business Interest Limit",
                 keywords: "business interest limitation 163j ebit ebitda sec 70303",
                 summary: "Permanently adopts the stricter EBIT (Earnings Before Interest and Taxes) calculation for the business interest expense deduction limitation, disallowing the add-back for depreciation and amortization.",
                 before: "<ul><li class='ml-4 list-disc'>The stricter EBIT calculation was required starting in 2022.</li></ul>",
@@ -609,6 +682,7 @@
                 category: "business",
                 startYear: 2026,
                 endYear: 2029, // Various termination dates
+                indexKeyword: "Adv. Manufacturing",
                 keywords: "advanced manufacturing investment production credit sec 70308 70514 48d 45x",
                 summary: "Increases the Investment Credit (Sec. 48D) rate to 35%. Modifies and phases out the Production Credit (Sec. 45X) for wind components and critical minerals, but adds metallurgical coal as a qualifying mineral.",
                 before: "<ul><li class='ml-4 list-disc'>Investment credit was 25%.</li><li class='ml-4 list-disc'>Production credit had a longer lifespan.</li></ul>",
@@ -624,6 +698,7 @@
                 category: "business",
                 startYear: 2025,
                 endYear: 2099, // Permanent
+                indexKeyword: "Spaceports",
                 keywords: "spaceports aerospace tax-exempt bonds sec 70309",
                 summary: "Allows private spaceport facilities to be financed with tax-exempt bonds, similar to airports, lowering capital costs for the aerospace industry.",
                 before: "<ul><li class='ml-4 list-disc'>This financing mechanism was not available for spaceports.</li></ul>",
@@ -639,6 +714,7 @@
                 category: "business",
                 startYear: 2025,
                 endYear: 2099, // Permanent
+                indexKeyword: "Opportunity Zones",
                 keywords: "opportunity zones oz sec 70421 investment rural",
                 summary: "Makes the Opportunity Zone program permanent, with a 10-year cycle for new zone designations. Modifies investor benefits and adds extensive new reporting requirements.",
                 before: "<ul><li class='ml-4 list-disc'>A temporary program with a one-time zone designation.</li></ul>",
@@ -654,6 +730,7 @@
                 category: "business",
                 startYear: 2026,
                 endYear: 2099, // Permanent
+                indexKeyword: "Tax-Exempt Orgs",
                 keywords: "tax-exempt nonprofit college endowment executive compensation sec 70415 70416",
                 summary: "Restructures the excise tax on private college endowments with new thresholds and a tiered rate system. Dramatically expands the excess compensation tax to apply to all employees, not just the top five.",
                 before: "<ul><li class='ml-4 list-disc'>Flat 1.4% tax on certain endowments.</li><li class='ml-4 list-disc'>Compensation tax limited to top 5 earners.</li></ul>",
@@ -669,6 +746,7 @@
                 category: "business",
                 startYear: 2026,
                 endYear: 2099, // Permanent
+                indexKeyword: "NMTC",
                 keywords: "new markets tax credit nmtc community development sec 70423",
                 summary: "Makes the New Markets Tax Credit (NMTC) a permanent part of the tax code, providing certainty for investments in low-income communities. It authorizes a $5 billion allocation for each calendar year and sets a 5-year carryforward period for any unused credit limitation.",
                 before: "<ul><li class='ml-4 list-disc'>The NMTC was a temporary provision that required periodic extensions by Congress. It was last extended through 2025.</li></ul>",
@@ -684,6 +762,7 @@
                 category: "business",
                 startYear: 2025,
                 endYear: 2099, // Permanent
+                indexKeyword: "QSBS",
                 keywords: "qualified small business stock qsbs section 1202 startup investment sec 70431",
                 summary: "Expands the tax exclusion for gains on QSBS (Sec. 1202). For stock acquired after enactment, it creates a tiered exclusion: 50% for stock held 3 years, 75% for 4 years, and 100% for 5+ years. It also increases the per-issuer gain exclusion limit from $10M to $15M and raises the gross assets test for a qualifying corporation from $50M to $75M.",
                 before: "<ul><li class='ml-4 list-disc'>Generally, a 100% exclusion for stock held more than 5 years, with a $10M cap and a $50M gross assets test.</li></ul>",
@@ -699,6 +778,7 @@
                 category: "business",
                 startYear: 2027,
                 endYear: 2099, // Permanent
+                indexKeyword: "Excess Business Loss",
                 keywords: "excess business loss limitation sec 461l passthrough sec 70601",
                 summary: "Makes the limitation on excess business losses for non-corporate taxpayers (e.g., owners of S-corps, partnerships, sole proprietorships) permanent. This rule prevents taxpayers from using large business losses to offset more than an inflation-adjusted threshold ($250k single / $500k joint) of their non-business income in a single year.",
                 before: "<ul><li class='ml-4 list-disc'>The limitation was temporary and scheduled to expire after 2028.</li></ul>",
@@ -714,6 +794,7 @@
                 category: "business",
                 startYear: 2025,
                 endYear: 2099, // Permanent
+                indexKeyword: "Construction Accounting",
                 keywords: "percentage of completion method construction completed contract sec 70430",
                 summary: "Expands an exception to the rule requiring the percentage-of-completion method for long-term contracts. The exception, which previously applied only to 'home construction,' is broadened to cover all 'residential construction contracts' for certain smaller contractors, allowing them to defer income recognition until a project is complete.",
                 before: "<ul><li class='ml-4 list-disc'>The exception was narrowly defined for home construction, forcing many residential builders to recognize income annually on multi-year projects.</li></ul>",
@@ -727,8 +808,9 @@
                 id: "provision-38",
                 title: "1099 Reporting Thresholds (Sec. 70432, 70433)",
                 category: "business",
-                startYear: 2025,
+                startYear: 2024,
                 endYear: 2099, // Permanent
+                indexKeyword: "1099 Thresholds",
                 keywords: "1099k 1099misc 1099nec reporting threshold sec 70432 70433",
                 summary: "Reverses the planned reduction in the Form 1099-K reporting threshold, restoring it to the higher level of over 200 transactions AND over $20,000. It also increases the general reporting threshold for Forms 1099-MISC and 1099-NEC from $600 to $2,000, and indexes the new threshold for inflation.",
                 before: "<ul><li class='ml-4 list-disc'>The 1099-K threshold was set to become $600.</li><li class='ml-4 list-disc'>The 1099-MISC/NEC threshold was $600.</li></ul>",
@@ -744,6 +826,7 @@
                 category: "business",
                 startYear: 2025,
                 endYear: 2099, // Permanent
+                indexKeyword: "Farmland Sales",
                 keywords: "farmland sale capital gains deferral installment sec 70437",
                 summary: "Creates a new tax benefit for the sale of farmland. When a taxpayer sells 'qualified farmland property' to a 'qualified farmer,' they can elect to pay the federal income tax on the gain in four equal annual installments.",
                 before: "<ul><li class='ml-4 list-disc'>Tax on the gain from selling farmland was generally due in the year of the sale.</li></ul>",
@@ -759,6 +842,7 @@
                 category: "individual",
                 startYear: 2026,
                 endYear: 2099, // Permanent
+                indexKeyword: "Remittance Tax",
                 keywords: "remittance transfer tax moneygram western union sec 70604",
                 summary: "Imposes a new 1% excise tax on certain international money transfers. The tax is paid by the sender and collected by the remittance provider. It primarily applies to transfers funded with cash or money orders. Transfers funded from a U.S. bank account or with a U.S.-issued debit/credit card are exempt.",
                 before: "<ul><li class='ml-4 list-disc'>No such federal excise tax existed.</li></ul>",
@@ -772,14 +856,15 @@
                 id: "provision-41",
                 title: "Employee Retention Credit (ERC) Enforcement (Sec. 70605)",
                 category: "business",
-                startYear: 2025,
+                startYear: 2024,
                 endYear: 2099, // Permanent
+                indexKeyword: "ERC Enforcement",
                 keywords: "employee retention credit erc enforcement statute of limitations sec 70605",
                 summary: "Enacts strict enforcement measures for the COVID-era ERC. It retroactively sets a hard deadline of Jan 31, 2024, for all claims. It extends the statute of limitations for the IRS to assess taxes on improper claims to 6 years and creates new penalties for 'COVID-ERTC promoters' who fail to perform due diligence.",
                 before: "<ul><li class='ml-4 list-disc'>The deadline for filing ERC claims was based on the standard statute of limitations (typically 3 years).</li><li class='ml-4 list-disc'>The assessment period was 3 or 5 years.</li></ul>",
                 after: "<ul><li class='ml-4 list-disc'>A hard deadline of Jan 31, 2024, is retroactively imposed.</li><li class='ml-4 list-disc'>The IRS now has 6 years to audit claims, and new promoter penalties are in effect.</li></ul>",
                 details: "The provision aims to curb fraudulent claims and give the IRS more time to pursue them. The new promoter penalty of $1,000 per failure applies to firms that charge fees based on the ERC amount or derive a significant portion of their revenue from ERC services and fail to meet due diligence standards similar to those for other tax credits.",
-                timelineEffective: "<strong>Effective:</strong> Permanent enforcement changes, effective on July 4, 2025.",
+                timelineEffective: "<strong>Effective:</strong> Permanent enforcement changes, effective on July 4, 2025. The claim deadline of Jan 31, 2024 is a key retroactive date.",
                 timelineTermination: "",
                 example: "In August 2025, the IRS opens an audit on a business's 2021 ERC claim. Under the old law, the statute of limitations might have been closing. Under OBBBA, the IRS now has until 2028 (6 years from the 2021 return filing date) to assess any taxes due from an improper claim."
             },
@@ -789,6 +874,7 @@
                 category: "business",
                 startYear: 2026,
                 endYear: 2099, // Permanent
+                indexKeyword: "International Tax",
                 keywords: "international tax cfc gelti qbai look-thru sec 70311 70354",
                 summary: "Makes several 'America-First' changes to international tax law. Key changes include making the 'look-thru rule' for CFCs permanent, increasing the deemed paid credit for GILTI-related foreign taxes from 80% to 90%, repealing the 10% QBAI return on foreign assets from the GILTI calculation (making more foreign income taxable), and limiting 'downward attribution' of stock ownership from foreign persons.",
                 before: "<ul><li class='ml-4 list-disc'>The look-thru rule was temporary.</li><li class='ml-4 list-disc'>The GILTI foreign tax credit was limited to 80%.</li><li class='ml-4 list-disc'>GILTI excluded a 10% return on tangible foreign assets.</li></ul>",
@@ -813,6 +899,10 @@
         const detailsModalContent = document.getElementById('detailsModalContent');
         const closeDetailsModalBtn = document.getElementById('closeDetailsModal');
         const detailsModalEditNote = document.getElementById('detailsModalEditNote');
+        const indexBar = document.getElementById('index-bar');
+        const indexBarContent = document.getElementById('index-bar-content');
+        const resultsCount = document.getElementById('results-count');
+        const backToTopBtn = document.getElementById('back-to-top');
         
         let currentCategory = 'all';
         let currentTimeline = '2025';
@@ -822,8 +912,10 @@
             const searchTerm = searchInput.value.toLowerCase();
             const cards = document.querySelectorAll('.provision-card');
             let visibleCount = 0;
+            
+            indexBarContent.innerHTML = '';
 
-            cards.forEach(card => {
+            cards.forEach((card, index) => {
                 const cardKeywords = card.dataset.keywords.toLowerCase();
                 const cardCategory = card.dataset.category;
                 const start = parseInt(card.dataset.startYear);
@@ -832,10 +924,13 @@
                 
                 const matchesCategory = currentCategory === 'all' || cardCategory === currentCategory;
                 
-                let matchesTimeline = currentTimeline === 'all' || (current >= start && current <= end);
-                
-                if (currentTimeline === '2024') {
-                    matchesTimeline = (start === 2025);
+                let matchesTimeline = false;
+                if (currentTimeline === 'all') {
+                    matchesTimeline = true;
+                } else if (currentTimeline === '2030') {
+                    matchesTimeline = (end >= 2030); // For "2030 & Permanent"
+                } else {
+                    matchesTimeline = (current >= start && current <= end);
                 }
                 
                 const matchesSearch = searchTerm === '' || cardKeywords.includes(searchTerm);
@@ -843,11 +938,33 @@
                 if (matchesCategory && matchesTimeline && matchesSearch) {
                     card.style.display = 'block';
                     visibleCount++;
+                    
+                    const provision = provisions.find(p => p.id === card.dataset.id);
+                    if (provision) {
+                        const indexLink = document.createElement('a');
+                        indexLink.href = `#${card.id}`;
+                        indexLink.className = 'index-link w-full flex items-center gap-2 text-xs font-bold text-slate-600 hover:bg-indigo-100 hover:text-indigo-600 p-2 rounded-md transition-colors';
+                        
+                        const numberSpan = document.createElement('span');
+                        numberSpan.className = 'flex-shrink-0 w-6 h-6 flex items-center justify-center bg-white border border-slate-200 rounded-full';
+                        numberSpan.textContent = visibleCount;
+                        
+                        const textSpan = document.createElement('span');
+                        textSpan.className = 'truncate';
+                        textSpan.textContent = provision.indexKeyword;
+
+                        indexLink.appendChild(numberSpan);
+                        indexLink.appendChild(textSpan);
+                        indexBarContent.appendChild(indexLink);
+                    }
+
                 } else {
                     card.style.display = 'none';
                 }
             });
-
+            
+            indexBar.style.display = visibleCount > 0 ? 'flex' : 'none';
+            resultsCount.textContent = `Showing ${visibleCount} of ${provisions.length} total provisions.`;
             noResultsDiv.style.display = visibleCount === 0 ? 'block' : 'none';
         };
 
@@ -879,12 +996,19 @@
                 editButton.textContent = 'Edit';
                 editButton.classList.remove('bg-green-500', 'hover:bg-green-600', 'text-white');
                 editButton.classList.add('bg-slate-200', 'hover:bg-slate-300');
+                 // Update the main provision object with edited details from modal
+                const provision = provisions.find(p => p.id === card.dataset.id);
+                if (provision) {
+                    provision.details = detailsModalContent.innerHTML;
+                }
             }
         }
 
         function handleCardActions(event) {
             const target = event.target;
             const card = target.closest('.provision-card');
+
+            if (!card) return;
 
             // Handle Edit/Save Button for main content
             if (target.classList.contains('edit-btn')) {
@@ -998,6 +1122,18 @@
 
         searchInput.addEventListener('input', applyFilters);
         provisionContainer.addEventListener('click', handleCardActions);
+        
+        // Back to Top Button Logic
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTopBtn.classList.remove('opacity-0', 'translate-y-4');
+            } else {
+                backToTopBtn.classList.add('opacity-0', 'translate-y-4');
+            }
+        });
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
 
         document.addEventListener('DOMContentLoaded', () => {
             provisionContainer.innerHTML = provisions.map(p => {
@@ -1012,7 +1148,7 @@
                          data-keywords="${p.title.toLowerCase()} ${p.keywords}"
                          data-id="${p.id}">
                         
-                        <div class="absolute top-4 right-4">
+                        <div class="absolute top-4 right-4 flex items-center gap-2">
                             <button class="edit-btn text-xs font-semibold py-1 px-3 rounded-full bg-slate-200 hover:bg-slate-300 transition-colors">Edit</button>
                         </div>
 
