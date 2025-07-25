@@ -214,7 +214,7 @@
 
 
     <script>
-        let provisions = [
+        let provisionsData = [
              // INDIVIDUAL PROVISIONS
             {
                 id: "provision-1",
@@ -944,7 +944,7 @@
                     card.style.display = 'block';
                     visibleCount++;
                     
-                    const provision = provisions.find(p => p.id === card.dataset.id);
+                    const provision = provisionsData.find(p => p.id === card.dataset.id);
                     if (provision) {
                         const indexLink = document.createElement('a');
                         indexLink.href = `#${card.id}`;
@@ -969,7 +969,7 @@
             });
             
             indexBar.style.display = visibleCount > 0 ? 'flex' : 'none';
-            resultsCount.textContent = `Showing ${visibleCount} of ${provisions.length} total provisions.`;
+            resultsCount.textContent = `Showing ${visibleCount} of ${provisionsData.length} total provisions.`;
             noResultsDiv.style.display = visibleCount === 0 ? 'block' : 'none';
         };
 
@@ -1001,11 +1001,7 @@
                 editButton.textContent = 'Edit';
                 editButton.classList.remove('bg-green-500', 'hover:bg-green-600', 'text-white');
                 editButton.classList.add('bg-slate-200', 'hover:bg-slate-300');
-                 // Update the main provision object with edited details from modal
-                const provision = provisions.find(p => p.id === card.dataset.id);
-                if (provision) {
-                    provision.details = detailsModalContent.innerHTML;
-                }
+                saveProvisionData();
             }
         }
 
@@ -1046,11 +1042,13 @@
                     target.classList.remove('bg-slate-200');
                     target.classList.add('bg-green-500', 'text-white');
                 }
+                saveProvisionData();
             }
 
             // Handle Comment Delete
             if (target.classList.contains('delete-comment-btn')) {
                 target.closest('li').remove();
+                saveProvisionData();
             }
 
 
@@ -1077,12 +1075,13 @@
                     `;
                     commentList.appendChild(listItem);
                     commentInput.value = '';
+                    saveProvisionData();
                 }
             }
 
             // Handle "See Details" button
             if (target.classList.contains('details-btn')) {
-                const provision = provisions.find(p => p.id === card.dataset.id);
+                const provision = provisionsData.find(p => p.id === card.dataset.id);
                 if (provision) {
                     detailsModalTitle.textContent = provision.title;
                     detailsModalContent.innerHTML = provision.details;
@@ -1121,6 +1120,12 @@
         });
         
         closeDetailsModalBtn.addEventListener('click', () => {
+            const isDetailsEditing = detailsModalContent.getAttribute('contenteditable') === 'true';
+            if (isDetailsEditing) {
+                const currentCard = document.getElementById(cardToEdit.id);
+                const provision = provisionsData.find(p => p.id === currentCard.dataset.id);
+                provision.details = detailsModalContent.innerHTML;
+            }
             detailsModal.classList.add('hidden');
         });
 
@@ -1139,11 +1144,51 @@
         backToTopBtn.addEventListener('click', () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
+        
+        function saveProvisionData() {
+            const currentData = [];
+            document.querySelectorAll('.provision-card').forEach(card => {
+                const id = card.dataset.id;
+                const originalProvision = provisions.find(p => p.id === id);
+                
+                const comments = [];
+                card.querySelectorAll('.comment-list li').forEach(li => {
+                    comments.push({
+                        text: li.querySelector('.comment-text').innerHTML,
+                        timestamp: li.querySelector('p:last-child').textContent
+                    });
+                });
 
-        document.addEventListener('DOMContentLoaded', () => {
-            provisionContainer.innerHTML = provisions.map(p => {
+                currentData.push({
+                    ...originalProvision,
+                    summary: card.querySelector('.editable.mb-2').innerHTML,
+                    before: card.querySelector('.editable strong:first-child').parentElement.innerHTML,
+                    after: card.querySelector('.editable strong:last-child').parentElement.innerHTML,
+                    example: card.querySelector('.editable.text-sm').innerHTML,
+                    details: originalProvision.details, // Details are saved when modal closes
+                    comments: comments
+                });
+            });
+            localStorage.setItem('provisionsData', JSON.stringify(currentData));
+        }
+
+        function renderAllProvisions() {
+            provisionContainer.innerHTML = provisionsData.map(p => {
                 const timelineEffectiveHTML = p.timelineEffective ? `<p class="timeline-effective font-medium">${p.timelineEffective}</p>` : '';
                 const timelineTerminationHTML = p.timelineTermination ? `<p class="timeline-termination font-medium">${p.timelineTermination}</p>` : '';
+
+                 const commentsHTML = (p.comments || []).map(comment => `
+                    <li class="bg-slate-100 p-3 rounded-md">
+                        <div class="flex justify-between items-start">
+                            <p class="text-sm text-slate-700 comment-text flex-grow">${comment.text}</p>
+                            <div class="flex gap-2 shrink-0 ml-4">
+                                <button class="edit-comment-btn text-xs font-semibold py-1 px-2 rounded bg-slate-200 hover:bg-slate-300 transition-colors">Edit</button>
+                                <button class="delete-comment-btn text-xs font-semibold py-1 px-2 rounded bg-red-100 text-red-700 hover:bg-red-200 transition-colors">Delete</button>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1">${comment.timestamp}</p>
+                    </li>
+                `).join('');
 
                  return `
                     <div id="${p.id}" class="provision-card bg-white p-6 rounded-xl shadow-lg relative ${p.category === 'individual' ? 'individual-border' : 'business-border'}" 
@@ -1184,7 +1229,7 @@
                         <div class="mt-6 border-t pt-4">
                             <h3 class="text-lg font-semibold text-slate-800 mb-2">Comments & Feedback</h3>
                             <ul class="comment-list space-y-3 mb-4 max-h-48 overflow-y-auto">
-                                <!-- Comments will be added here -->
+                                ${commentsHTML}
                             </ul>
                             <div class="flex gap-2">
                                 <textarea class="comment-input w-full p-2 border border-slate-300 rounded-md focus:ring-2 focus:ring-indigo-500" placeholder="Add a comment..."></textarea>
@@ -1194,7 +1239,18 @@
                     </div>
                 `;
             }).join('');
-            applyFilters(); 
+            applyFilters();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedData = localStorage.getItem('provisionsData');
+            if (savedData) {
+                provisionsData = JSON.parse(savedData);
+            } else {
+                // First time load, save the default data
+                localStorage.setItem('provisionsData', JSON.stringify(provisionsData));
+            }
+            renderAllProvisions();
         });
 
     </script>
